@@ -1,14 +1,14 @@
 # async-file
 
 #### 介绍
-框架提供Java异步读写文件功能，除依赖slf4j日志包，不依赖其他第三方包。Java应用程序引入框架可以简单的，异步和非阻塞的读写文件。框架包含三个工具类：
+框架提供Java异步读写文件工具，使用Java NIO 文件读写库。Java应用程序引入框架可以简单的，异步和非阻塞的读写文件。框架包含三个工具类：
 
 
-[`AIOFileReader`](src/main/java/io/github/kavahub/file/reader/AIOFileReader.java) 异步读取文件，使用Java NIO库 [`AsynchronousFileChannel`](https://docs.oracle.com/javase/10/docs/api/java/nio/channels/AsynchronousFileChannel.html) 和 [`CompletionHandler`](https://docs.oracle.com/javase/10/docs/api/java/nio/channels/CompletionHandler.html) 实现。
+- [`AIOFileReader`](src/main/java/io/github/kavahub/file/reader/AIOFileReader.java) 异步读取文件，使用Java NIO库 [`AsynchronousFileChannel`](https://docs.oracle.com/javase/10/docs/api/java/nio/channels/AsynchronousFileChannel.html) 和 [`CompletionHandler`](https://docs.oracle.com/javase/10/docs/api/java/nio/channels/CompletionHandler.html) 实现。
 
-[`AIOFileWriter`](src/main/java/io/github/kavahub/file/writer/AIOFileWriter.java) 异步写入文件，使用Java NIO库 [`AsynchronousFileChannel`](https://docs.oracle.com/javase/10/docs/api/java/nio/channels/AsynchronousFileChannel.html) 和 [`CompletionHandler`](https://docs.oracle.com/javase/10/docs/api/java/nio/channels/CompletionHandler.html) 实现。
+- [`AIOFileWriter`](src/main/java/io/github/kavahub/file/writer/AIOFileWriter.java) 异步写入文件，使用Java NIO库 [`AsynchronousFileChannel`](https://docs.oracle.com/javase/10/docs/api/java/nio/channels/AsynchronousFileChannel.html) 和 [`CompletionHandler`](https://docs.oracle.com/javase/10/docs/api/java/nio/channels/CompletionHandler.html) 实现。
 
-[`NIOFileLineReader`](src/main/java/io/github/kavahub/file/reader/NIOFileLineReader.java) 非阻塞读取文件，使用 [`ForkJoinPool`](https://docs.oracle.com/javase/10/docs/api/java/util/concurrent/ForkJoinPool.html) 和 [`BufferedReader`](https://docs.oracle.com/javase/10/docs/api/java/io/BufferedReader.html) 实现
+- [`NIOFileLineReader`](src/main/java/io/github/kavahub/file/reader/NIOFileLineReader.java) 非阻塞读取文件，使用 [`ForkJoinPool`](https://docs.oracle.com/javase/10/docs/api/java/util/concurrent/ForkJoinPool.html) 和 [`BufferedReader`](https://docs.oracle.com/javase/10/docs/api/java/io/BufferedReader.html) 实现
 
 Java提供的 [`Files`](https://docs.oracle.com/javase/10/docs/api/java/nio/file/Files.html) 文件读取功能是阻塞的。
 
@@ -302,7 +302,7 @@ Thread-7
 
 关于使用的建议：
 
-- 文件的异步读写，并不是未了提高文件的读取性能，而是提高文件读取的吞吐量（读取更多的文件，并保持性能，使JVM可以稳定运行）。
+- 文件的异步读写，并不是为了提高文件的读取性能，而是提高文件读取的吞吐量（读取更多的文件，并保持性能，使JVM可以稳定运行）。
 - 在大多数情况下，使用Jdk提供的[`Files`](https://docs.oracle.com/javase/10/docs/api/java/nio/file/Files.html)或许更合适。
 - 不要为了异步而异步，找到问题所在，也许解决问题的关键不是异步。
 
@@ -311,9 +311,13 @@ Thread-7
 
 建议使用优先级： `Java NIO Files` > `NIOFileLineReader` > `AIOFileReader`
 
+#### 如何参与开发
+
+
+
 #### 其他开源项目
 
-- [RxIo](https://github.com/javasync/RxIo) 
+- [RxIo](https://github.com/javasync/RxIo) : Asynchronous non-blocking File Reader and Writer library for Java
 
 #### 参考文档
 
