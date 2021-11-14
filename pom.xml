@@ -29,7 +29,7 @@
     <connection>scm:git:git@github.com:kavahub/async-file.git</connection>
     <developerConnection>scm:git:git@github.com:kavahub/async-file.git</developerConnection>
     <url>https://github.com/kavahub/async-file.git</url>
-    <tag>kavahub-async-file-1.0.0</tag>
+    <tag>HEAD</tag>
   </scm>
 
 
