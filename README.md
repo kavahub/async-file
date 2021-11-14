@@ -325,14 +325,21 @@ Thread-7
 mvn clean install
 ```
 
-发布包到Maven Repository中，使用mvn命令：
-
+升级版本号，并发布包到Maven Repository中，使用mvn命令：
 
 ```text
-mvn clean
+mvn release:clean -Prelease
 mvn release:prepare -Prelease
 mvn release:perform -Prelease
 ```
+
+直接发布snapshot包
+
+```text
+mvn clean deploy -Prelease
+```
+
+删除staging包
 
 ```text
 mvn nexus-staging:drop -Prelease
