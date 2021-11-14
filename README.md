@@ -327,7 +327,7 @@ mvn clean install
 
 #### 发布项目
 
-首先，确保项目可以正确构建。然后执行下面的命令：
+首先，确保项目可以正确构建。然后执行下面的命令(发布的文件要以release结尾，如：kavahub-async-file-1.0.0.RELEASE.jar)：
 
 ```text
 mvn release:prepare -Prelease
