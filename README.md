@@ -319,9 +319,17 @@ Thread-7
 
 #### 构建项目
 
+克隆代码到本地，然后运行mvn命令, 执行编译，测试，打包项目：
 
+```text
+mvn clean install
+```
 
+发布包到Maven Repository中，使用mvn命令：
 
+```text
+mvn clean deploy -P release
+```
 
 #### 其他开源项目
 
@@ -330,5 +338,6 @@ Thread-7
 #### 参考文档
 
 - [vsCode利用git连接github](https://www.jianshu.com/p/f836da434e18)
+- [如何将自己的代码发布到Maven中央仓库](https://www.cnblogs.com/songyz/p/11387978.html)
 
 

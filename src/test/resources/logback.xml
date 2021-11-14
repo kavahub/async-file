@@ -7,7 +7,7 @@
         </encoder>
     </appender>
 
-    <logger name="net.kava" level="INFO,DEBUG,ERROR"/>
+    <logger name="io.github.kavahub" level="INFO,DEBUG,ERROR"/>
     
     <root level="INFO">
         <appender-ref ref="STDOUT" />
