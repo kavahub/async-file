@@ -327,8 +327,15 @@ mvn clean install
 
 发布包到Maven Repository中，使用mvn命令：
 
+
 ```text
-mvn clean deploy -P release
+mvn release:prepare
+mvn clean deploy -P release # 如果此步出错，可以重复执行
+mvn  release:perform
+```
+
+```text
+
 ```
 
 #### 其他开源项目
