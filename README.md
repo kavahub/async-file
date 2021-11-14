@@ -329,13 +329,13 @@ mvn clean install
 
 
 ```text
-mvn release:prepare
-mvn clean deploy -P release # 如果此步出错，可以重复执行
-mvn  release:perform
+mvn clean
+mvn release:prepare -Prelease
+mvn release:perform -Prelease
 ```
 
 ```text
-
+mvn nexus-staging:drop -Prelease
 ```
 
 #### 其他开源项目
