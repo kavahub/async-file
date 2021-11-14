@@ -1,5 +1,9 @@
 # async-file
 
+[![Maven central](https://img.shields.io/maven-central/v/io.github.kavahub/kavahub-async-file.svg)](https://search.maven.org/artifact/io.github.kavahub/kavahub-async-file)
+[![License](https://img.shields.io/github/license/kavahub/async-file)](https://img.shields.io/github/license/kavahub/async-file)
+
+
 #### 介绍
 框架提供Java异步读写文件工具，使用Java NIO 文件读写库。Java应用程序引入框架可以简单的，异步和非阻塞的读写文件。框架包含三个工具类：
 
@@ -306,12 +310,16 @@ Thread-7
 - 在大多数情况下，使用Jdk提供的[`Files`](https://docs.oracle.com/javase/10/docs/api/java/nio/file/Files.html)或许更合适。
 - 不要为了异步而异步，找到问题所在，也许解决问题的关键不是异步。
 
+建议使用优先级： `Java NIO Files` > `NIOFileLineReader` > `AIOFileReader`
+
+#### 性能
+
 性能测试，参考 [`ReadLineBenchmark`](src/test/java/io/github/kavahub/file/performance/ReadLineBenchmark.java) 。 其他开源项目文件读写的性能测试 [`ReadFileBenchmark`](https://gitee.com/yangyunjiao/learn-java/blob/master/core-java/core-java-io/src/main/java/net/learnjava/ReadFileBenchmark.java)
 
 
-建议使用优先级： `Java NIO Files` > `NIOFileLineReader` > `AIOFileReader`
+#### 构建项目
 
-#### 如何参与开发
+
 
 
 
