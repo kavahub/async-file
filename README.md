@@ -325,30 +325,33 @@ Thread-7
 mvn clean install
 ```
 
-升级版本号，并发布包到Maven Repository中，使用mvn命令：
+#### 发布项目
+
+首先，确保项目可以正确构建。然后执行下面的命令：
 
 ```text
-mvn release:clean -Prelease
 mvn release:prepare -Prelease
 mvn release:perform -Prelease
 ```
 
-直接发布snapshot包
+上面操作将包上传到了Staging Repository，需要转入Release Repository，执行命令：
+
+```text
+mvn nexus-staging:release
+```
+
+以上操作全部成功，发布完成。
+
+发布SNAPSHOT包到仓库，命令如下：
 
 ```text
 mvn clean deploy -Prelease
 ```
 
-发布包
-```text
-mvn nexus-staging:release
-```
-
-删除staging包
+取消Staging Repository中的包，命令如下：
 
 ```text
-mvn nexus-staging:drop
-```
+mvn nexus-staging:drop 
 
 #### 其他开源项目
 
