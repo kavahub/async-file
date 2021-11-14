@@ -339,6 +339,11 @@ mvn release:perform -Prelease
 mvn clean deploy -Prelease
 ```
 
+发布包
+```text
+mvn nexus-staging:release
+```
+
 删除staging包
 
 ```text
@@ -353,5 +358,7 @@ mvn nexus-staging:drop -Prelease
 
 - [vsCode利用git连接github](https://www.jianshu.com/p/f836da434e18)
 - [如何将自己的代码发布到Maven中央仓库](https://www.cnblogs.com/songyz/p/11387978.html)
+- [Deploying to OSSRH with Apache Maven - Introduction](https://central.sonatype.org/publish/publish-maven/)
+
 
 
