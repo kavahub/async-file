@@ -1,7 +1,7 @@
 # async-file
 
 [![Maven central](https://img.shields.io/maven-central/v/io.github.kavahub/kavahub-async-file.svg)](https://search.maven.org/artifact/io.github.kavahub/kavahub-async-file)
-[![License](https://img.shields.io/github/license/kavahub/async-file)](https://img.shields.io/github/license/kavahub/async-file)
+[![License](https://img.shields.io/github/license/kavahub/async-file.svg)](https://github.com/kavahub/async-file/blob/main/LICENSE)
 
 
 #### 介绍
