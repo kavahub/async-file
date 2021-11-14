@@ -347,7 +347,7 @@ mvn nexus-staging:release
 删除staging包
 
 ```text
-mvn nexus-staging:drop -Prelease
+mvn nexus-staging:drop
 ```
 
 #### 其他开源项目
