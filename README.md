@@ -2,6 +2,9 @@
 
 [![Maven central](https://img.shields.io/maven-central/v/io.github.kavahub/kavahub-async-file.svg)](https://search.maven.org/artifact/io.github.kavahub/kavahub-async-file)
 [![License](https://img.shields.io/github/license/kavahub/async-file.svg)](https://github.com/kavahub/async-file/blob/main/LICENSE)
+[![GitHub stars](https://img.shields.io/github/stars/kavahub/async-file.svg)](https://github.com/kavahub/async-file/stargazers)
+[![GitHub forks](https://img.shields.io/github/forks/kavahub/async-file.svg)](https://github.com/kavahub/async-file/network/members)
+[![GitHub release](https://img.shields.io/github/release/kavahub/async-file.svg?color=blu)](https://github.com/kavahub/async-file/releases)
 
 
 #### 介绍
