@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 
 import io.github.kavahub.file.reader.NIOFileLineReader;
 
-public class NIOFileLineReaderExample {
+public class NIOFileLineReaderManualTest {
     
     
     @Test

@@ -1,5 +1,6 @@
 package io.github.kavahub.file.writer;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.concurrent.CompletableFuture;
@@ -11,6 +12,14 @@ import lombok.extern.slf4j.Slf4j;
 @UtilityClass
 @Slf4j
 public class AIOFileWriter {
+    public CompletableFileWriter of(Path file) throws IOException {
+        return of(file, StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE);
+    }
+
+    public CompletableFileWriter of(Path file, StandardOpenOption... options) throws IOException {
+        return CompletableFileWriter.of(file, options);
+    }
+
     public CompletableFuture<Integer> write(Path file, byte[] bytes) {
         return write(file, bytes, StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE);
     }

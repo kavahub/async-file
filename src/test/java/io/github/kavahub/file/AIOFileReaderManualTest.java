@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 
 import io.github.kavahub.file.reader.AIOFileReader;
 
-public class AIOFileReaderExample {
+public class AIOFileReaderManualTest {
     @Test
     public void giveFile_whenReadLine_thenPrint() {
         final Path FILE = Paths.get("src", "test", "resources", "fileWithmanyOfLine.txt");
