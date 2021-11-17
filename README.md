@@ -25,9 +25,9 @@ Java提供的 [`Files`](https://docs.oracle.com/javase/10/docs/api/java/nio/file
 
 ```xml
 <dependency> 
-  <groupId>net.kava</groupId>
+  <groupId>io.github.kavahub</groupId>
   <artifactId>kava-async-file</artifactId>
-  <version>1.0.0</version>
+  <version>1.0.0.RELEASE</version>
 </dependency>
 ```
 
