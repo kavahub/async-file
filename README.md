@@ -8,7 +8,6 @@
 [![GitHub release](https://img.shields.io/github/release/kavahub/async-file?style=flat-square&logo=GitHub?color=blu)](https://github.com/kavahub/async-file/releases)
 [![Gitee stars](https://gitee.com/pinweiwan/async-file/badge/star.svg)](https://gitee.com/dromara/async-file/stargazers)
 [![Gitee forks](https://gitee.com/pinweiwan/async-file/badge/fork.svg)](https://gitee.com/dromara/async-file/members)
-[![Gitee watchers](https://gitee.com/pinweiwan/async-file/watchers.svg)](https://gitee.com/pinweiwan/async-file/watchers)
 
 
 #### 介绍
@@ -21,7 +20,7 @@
 
 - [`NIOFileLineReader`](src/main/java/io/github/kavahub/file/reader/NIOFileLineReader.java) 非阻塞读取文件，使用 [`ForkJoinPool`](https://docs.oracle.com/javase/10/docs/api/java/util/concurrent/ForkJoinPool.html) 和 [`BufferedReader`](https://docs.oracle.com/javase/10/docs/api/java/io/BufferedReader.html) 实现
 
-Java提供的 [`Files`](https://docs.oracle.com/javase/10/docs/api/java/nio/file/Files.html) 文件读取功能是阻塞的。
+提示：Java提供的 [`Files`](https://docs.oracle.com/javase/10/docs/api/java/nio/file/Files.html) 文件读取功能是阻塞的。
 
 #### 安装教程
 
