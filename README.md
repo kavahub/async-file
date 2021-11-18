@@ -2,10 +2,14 @@
 
 [![Maven central](https://img.shields.io/maven-central/v/io.github.kavahub/kavahub-async-file.svg)](https://search.maven.org/artifact/io.github.kavahub/kavahub-async-file)
 [![License](https://img.shields.io/github/license/kavahub/async-file.svg)](https://github.com/kavahub/async-file/blob/main/LICENSE)
-[![GitHub stars](https://img.shields.io/github/stars/kavahub/async-file.svg)](https://github.com/kavahub/async-file/stargazers)
-[![GitHub forks](https://img.shields.io/github/forks/kavahub/async-file.svg)](https://github.com/kavahub/async-file/network/members)
-[![GitHub release](https://img.shields.io/github/release/kavahub/async-file.svg?color=blu)](https://github.com/kavahub/async-file/releases)
-
+[![GitHub stars](https://img.shields.io/github/stars/kavahub/async-file?style=flat-square&logo=GitHub)](https://github.com/kavahub/async-file/stargazers)
+[![GitHub forks](https://img.shields.io/github/forks/kavahub/async-file?style=flat-square&logo=GitHub)](https://github.com/kavahub/async-file/network/members)
+[![GitHub watchers](https://img.shields.io/github/watchers/dromara/async-file?style=flat-square&logo=GitHub)](https://github.com/kavahub/async-file/watchers)
+[![GitHub release](https://img.shields.io/github/release/kavahub/async-file?style=flat-square&logo=GitHub?color=blu)](https://github.com/kavahub/async-file/releases)
+[![Gitee stars](https://gitee.com/dromara/async-file/badge/star.svg)](https://gitee.com/dromara/async-file/stargazers)
+[![GitHub forks](https://gitee.com/dromara/async-file/badge/fork.svg)](https://gitee.com/dromara/async-file/members)
+[![GitHub watchers](https://gitee.com/pinweiwan/async-file/watchers.svg)](https://gitee.com/pinweiwan/async-file/watchers)
+[![GitHub release](https://img.shields.io/github/release/kavahub/async-file?style=flat-square&logo=GitHub?color=blu)](https://github.com/kavahub/async-file/releases)
 
 #### 介绍
 框架提供Java异步读写文件工具，使用Java NIO 文件读写库。Java应用程序引入框架可以简单的，异步和非阻塞的读写文件。框架包含三个工具类：
@@ -34,7 +38,7 @@ Java提供的 [`Files`](https://docs.oracle.com/javase/10/docs/api/java/nio/file
 如果是Gradle项目，需要添加依赖：
 
 ```groovy
-implementation 'net.kava:kava-async-file:1.0.0'
+implementation 'io.github.kavahub:kava-async-file:1.0.0.RELEASE'
 ```
 
 #### 使用说明
