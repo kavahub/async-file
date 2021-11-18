@@ -4,12 +4,12 @@
 [![License](https://img.shields.io/github/license/kavahub/async-file.svg)](https://github.com/kavahub/async-file/blob/main/LICENSE)
 [![GitHub stars](https://img.shields.io/github/stars/kavahub/async-file?style=flat-square&logo=GitHub)](https://github.com/kavahub/async-file/stargazers)
 [![GitHub forks](https://img.shields.io/github/forks/kavahub/async-file?style=flat-square&logo=GitHub)](https://github.com/kavahub/async-file/network/members)
-[![GitHub watchers](https://img.shields.io/github/watchers/dromara/async-file?style=flat-square&logo=GitHub)](https://github.com/kavahub/async-file/watchers)
+[![GitHub watchers](https://img.shields.io/github/watchers/kavahub/async-file?style=flat-square&logo=GitHub)](https://github.com/kavahub/async-file/watchers)
 [![GitHub release](https://img.shields.io/github/release/kavahub/async-file?style=flat-square&logo=GitHub?color=blu)](https://github.com/kavahub/async-file/releases)
-[![Gitee stars](https://gitee.com/dromara/async-file/badge/star.svg)](https://gitee.com/dromara/async-file/stargazers)
-[![GitHub forks](https://gitee.com/dromara/async-file/badge/fork.svg)](https://gitee.com/dromara/async-file/members)
-[![GitHub watchers](https://gitee.com/pinweiwan/async-file/watchers.svg)](https://gitee.com/pinweiwan/async-file/watchers)
-[![GitHub release](https://img.shields.io/github/release/kavahub/async-file?style=flat-square&logo=GitHub?color=blu)](https://github.com/kavahub/async-file/releases)
+[![Gitee stars](https://gitee.com/pinweiwan/async-file/badge/star.svg)](https://gitee.com/dromara/async-file/stargazers)
+[![Gitee forks](https://gitee.com/pinweiwan/async-file/badge/fork.svg)](https://gitee.com/dromara/async-file/members)
+[![Gitee watchers](https://gitee.com/pinweiwan/async-file/watchers.svg)](https://gitee.com/pinweiwan/async-file/watchers)
+
 
 #### 介绍
 框架提供Java异步读写文件工具，使用Java NIO 文件读写库。Java应用程序引入框架可以简单的，异步和非阻塞的读写文件。框架包含三个工具类：
