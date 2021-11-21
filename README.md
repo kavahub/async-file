@@ -14,7 +14,7 @@
 [GitHub](https://github.com/kavahub/async-file)
 
 #### 介绍
-框架提供Java异步读写文件工具，使用Java NIO 文件读写库。Java应用程序引入框架可以简单的，异步和非阻塞的读写文件。框架包含三个工具类：
+async-file工具提供Java异步读写文件的能力，使用Java NIO 库开发。Java应用程序引入框架可以简单的，异步和非阻塞的读写文件。框架包含三个工具类：
 
 
 - [`AIOFileReader`](src/main/java/io/github/kavahub/file/reader/AIOFileReader.java) 异步读取文件，使用Java NIO库 [`AsynchronousFileChannel`](https://docs.oracle.com/javase/10/docs/api/java/nio/channels/AsynchronousFileChannel.html) 和 [`CompletionHandler`](https://docs.oracle.com/javase/10/docs/api/java/nio/channels/CompletionHandler.html) 实现。
