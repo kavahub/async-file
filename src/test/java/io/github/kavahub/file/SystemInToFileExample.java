@@ -7,6 +7,10 @@ import java.util.Scanner;
 import io.github.kavahub.file.writer.AIOFileWriter;
 import io.github.kavahub.file.writer.CompletableFileWriter;
 
+/**
+ * 控制台输入信息存入文件
+ * 
+ */
 public class SystemInToFileExample {
     
     public static void main(String[] arg) throws IOException {

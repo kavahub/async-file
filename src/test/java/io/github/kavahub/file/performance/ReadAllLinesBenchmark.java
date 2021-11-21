@@ -21,7 +21,18 @@ import org.openjdk.jmh.runner.options.OptionsBuilder;
 
 import io.github.kavahub.file.reader.AIOFileReader;
 
-
+/**
+ * 所有行读取性能测试
+ * 
+ * <p>
+ * 测试结果：
+ * 
+ * <pre>
+ * Benchmark                                       Mode  Cnt    Score    Error  Units
+ * ReadAllLinesBenchmark.readAllUsingAsyncReader  thrpt   10  420.534 ± 31.442  ops/s
+ * ReadAllLinesBenchmark.readAllUsingJavaFiles    thrpt   10  757.532 ± 12.783  ops/s
+ * </pre>
+ */
 @State(Scope.Benchmark)
 @BenchmarkMode(Mode.Throughput)
 @OutputTimeUnit(TimeUnit.SECONDS)
@@ -34,7 +45,7 @@ public class ReadAllLinesBenchmark {
     public static void main(String[] args) throws Exception {
         ChainedOptionsBuilder opts = new OptionsBuilder().include(ReadAllLinesBenchmark.class.getSimpleName());
 
-        new Runner(opts.threads(1).build()).run();
+        new Runner(opts.threads(8).build()).run();
     }
 
     @Benchmark

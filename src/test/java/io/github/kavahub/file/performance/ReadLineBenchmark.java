@@ -25,6 +25,19 @@ import io.github.kavahub.file.reader.AIOFileReader;
 import io.github.kavahub.file.reader.NIOFileLineReader;
 
 
+/**
+ * 逐行读取性能测试
+ * 
+ * <p>
+ * 测试结果：
+ * 
+ * <pre>
+ * Benchmark                                          Mode  Cnt    Score    Error  Units
+ * ReadLineBenchmark.readLineUsingAsyncReader        thrpt   10  373.187 ± 53.861  ops/s
+ * ReadLineBenchmark.readLineUsingJavaFiles          thrpt   10  282.852 ± 41.247  ops/s
+ * ReadLineBenchmark.readLineUsingNIOFileLineReader  thrpt   10  256.296 ± 10.875  ops/s
+ * </pre>
+ */
 @State(Scope.Benchmark)
 @BenchmarkMode(Mode.Throughput)
 @OutputTimeUnit(TimeUnit.SECONDS)
@@ -37,7 +50,7 @@ public class ReadLineBenchmark {
     public static void main(String[] args) throws Exception {
         ChainedOptionsBuilder opts = new OptionsBuilder().include(ReadLineBenchmark.class.getSimpleName());
 
-        new Runner(opts.threads(16).build()).run();
+        new Runner(opts.threads(8).build()).run();
     }
 
     @Benchmark
@@ -54,7 +67,7 @@ public class ReadLineBenchmark {
     }
 
     @Benchmark
-    public List<String> readLineUsingFileLineReader(){
+    public List<String> readLineUsingNIOFileLineReader(){
         List<String> result = new ArrayList<>();
         NIOFileLineReader.read(file).subscribe((data, err) -> result.add(data)).join();
         return result;

@@ -5,9 +5,6 @@ import java.nio.channels.AsynchronousFileChannel;
 import java.nio.channels.CompletionHandler;
 import java.util.function.Consumer;
 
-import lombok.extern.slf4j.Slf4j;
-
-@Slf4j
 public final class WriteFile {
     /**
      * 
@@ -48,9 +45,6 @@ public final class WriteFile {
 
             @Override
             public void failed(Throwable exc, Object attachment) {
-                if (log.isErrorEnabled()) {
-                    log.error("Failed while writing", exc);
-                }
                 whenError.accept(exc);
             }
         });

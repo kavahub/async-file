@@ -4,14 +4,13 @@ import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousFileChannel;
 import java.nio.channels.CompletionHandler;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
  */
-@Slf4j
 public final class ReadFile {
     /**
      * 
@@ -21,12 +20,17 @@ public final class ReadFile {
     /**
      * 
      */
-    private Consumer<byte[]> whenRead;
+    private BiConsumer<byte[], Integer> whenRead;
 
     /**
      * 
      */
-    private Consumer<Integer> whenComplete;
+    private Consumer<Integer> whenFinish;
+
+        /**
+     * 
+     */
+    private Consumer<Integer> whenCancel;
 
     private final AsynchronousFileChannel channel;
     private final int bufferSize;
@@ -46,13 +50,18 @@ public final class ReadFile {
         return this;
     }
     
-    public ReadFile whenRead(Consumer<byte[]> whenRead) {
+    public ReadFile whenRead(BiConsumer<byte[], Integer> whenRead) {
         this.whenRead = whenRead;
         return this;
     }
 
-    public ReadFile whenComplete(Consumer<Integer> whenComplete) {
-        this.whenComplete = whenComplete;
+    public ReadFile whenFinish(Consumer<Integer> whenFinish) {
+        this.whenFinish = whenFinish;
+        return this;
+    }
+
+    public ReadFile whenCancel(Consumer<Integer> whenCancel) {
+        this.whenCancel = whenCancel;
         return this;
     }
 
@@ -60,9 +69,6 @@ public final class ReadFile {
      * 
      */
     public void cancel() {
-        if (log.isDebugEnabled()) {
-            log.debug("Cancel signal received");
-        }
         cancelled = true;
     }
 
@@ -85,29 +91,21 @@ public final class ReadFile {
 
                     byte[] data = new byte[result];
                     buffer.get(data);
-                    whenRead.accept(data);
+                    whenRead.accept(data, position.get());
                    
+
                     if (!isCancelled()) {
                         read0(channel, position.get(), this);
                     } else {
-                        if (log.isDebugEnabled()) {
-                            log.debug("Cancel file reading. [{} bytes] has been readed", position.get());
-                        }
-                        whenComplete.accept(position.get());
+                        whenCancel.accept(position.get());
                     }
                 } else {
-                    if (log.isDebugEnabled()) {
-                        log.debug("File read complete. [{} bytes] has been readed", position.get());
-                    }
-                    whenComplete.accept(position.get());
+                    whenFinish.accept(position.get());
                 }
             }
 
             @Override
             public void failed(Throwable exc, ByteBuffer buffer) {
-                if (log.isErrorEnabled()) {
-                    log.error("Failed while reading", exc);
-                }
                 whenError.accept(exc);
             }
         };

@@ -33,15 +33,38 @@ public class FileByteReaderQuery extends Query<byte[]> {
             AsynchronousFileChannel channel = AsynchronousFileChannel.open(file, StandardOpenOption.READ);
             ReadFile reader = ReadFile.of(channel, bufferSize)
                     // 读取文件异常时
-                    .whenError(throwable -> consumer.accept(null, throwable))
+                    .whenError(throwable -> {
+                        if (log.isErrorEnabled()) {
+                            log.error("Failed while file reading", throwable);
+                        }
+
+                        consumer.accept(null, throwable);
+                    })
                     // 读取文件完成时
-                    .whenComplete(size -> {
+                    .whenFinish(size -> {
+                        if (log.isDebugEnabled()) {
+                            log.debug("File read complete", size);
+                        }
+
                         if (!future.isDone()) {
                             future.complete(null);
                         }
                     })
                     // 读取到文件数据时
-                    .whenRead(bytes -> consumer.accept(bytes, null));
+                    .whenCancel(size -> {
+                        if (log.isDebugEnabled()) {
+                            log.debug("Cancel file reading");
+                        }
+                    })
+                    // 读取到文件数据时
+                    .whenRead((bytes, size) -> {
+                        if (log.isDebugEnabled()) {
+                            log.debug("[{} bytes] has been readed", size);
+                        }
+
+                        consumer.accept(bytes, null);
+                    });
+
 
             // 开始读
             reader.read();
@@ -49,6 +72,9 @@ public class FileByteReaderQuery extends Query<byte[]> {
                 if (data == null || err != null) {
                     // 取消读操作
                     reader.cancel();
+                    if (log.isDebugEnabled()) {
+                        log.debug("The signal to cancel file reading has been sent");
+                    }
 
                     // 关闭channel
                     ChannelHelper.close(channel);

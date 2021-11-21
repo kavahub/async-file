@@ -5,20 +5,19 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import io.github.kavahub.file.reader.AIOFileReader;
 import io.github.kavahub.file.writer.AIOFileWriter;
+import io.github.kavahub.file.writer.CompletableFileWriter;
 
 public class AIOFileWriterTest {
     private static final Path FILE_TO_WRITE = Paths.get("target", "fileToWrite.txt");
@@ -31,24 +30,31 @@ public class AIOFileWriterTest {
 
     @Test
     public void whenWriteIterable_thenExcepted() throws IOException {
-        List<String> data = EXPECTED.stream().map(line -> line + System.lineSeparator()).collect(Collectors.toList());
-        AIOFileWriter.write(FILE_TO_WRITE, data)
-                // 写入完成时
-                .whenComplete((index, ex) -> {
-                    if (ex != null)
-                        fail(ex.getMessage());
-                })
-                // 等待写入完成
-                .join();
-        Iterator<String> actual = Files.lines(FILE_TO_WRITE).iterator();
-        if (actual.hasNext() == false)
-            fail("File is empty!!!");
-        EXPECTED.forEach(l -> {
-            if (actual.hasNext())
-                assertEquals(l, actual.next());
-            else
-                fail("File does not contain line: " + l);
-        });
+        try (CompletableFileWriter writer = AIOFileWriter.of(FILE_TO_WRITE)) {
+            EXPECTED.stream().map(line -> line + System.lineSeparator()).forEach(line -> {
+                writer.write(line);
+            });
+
+            // 等待写入完成
+            writer.getPosition().whenComplete((size, error) -> {
+                if (error != null) {
+                    error.printStackTrace();
+                }
+
+                System.out.println("总共写入字节数：" + size);
+            }).join();
+
+            Iterator<String> actual = Files.lines(FILE_TO_WRITE).iterator();
+            if (actual.hasNext() == false)
+                fail("File is empty!!!");
+
+            EXPECTED.forEach(l -> {
+                if (actual.hasNext())
+                    assertEquals(l, actual.next());
+                else
+                    fail("File does not contain line: " + l);
+            });
+        }
 
     }
 
@@ -62,29 +68,113 @@ public class AIOFileWriterTest {
     }
 
     @Test
-    public void giveReadAndWriteOneLine_whenLine_thenExcepted() throws IOException {
+    public void giveReadLine_whenWrite_thenExcepted() throws IOException {
         final Path FILE = Paths.get("src", "test", "resources", "fileWithmanyOfLine.txt");
-        AIOFileWriter
-                .write(FILE_TO_WRITE, AIOFileReader.line(FILE).map(line -> line + System.lineSeparator()))
-                .join();
+        try (CompletableFileWriter writer = AIOFileWriter.of(FILE_TO_WRITE)) {
 
-        assertArrayEquals(Files.readAllBytes(FILE), Files.readAllBytes(FILE_TO_WRITE));
+            AIOFileReader.line(FILE).subscribe((data, err) -> {
+                if (err != null) {
+                    err.printStackTrace();
+                }
+
+                if (data != null) {
+                    writer.write(data + System.lineSeparator());
+                }
+            }).join();
+
+            // 等待写入完成
+            writer.getPosition().whenComplete((size, error) -> {
+                if (error != null) {
+                    error.printStackTrace();
+                }
+
+                System.out.println("总共写入字节数：" + size);
+            }).join();
+
+            assertArrayEquals(Files.readAllBytes(FILE), Files.readAllBytes(FILE_TO_WRITE));
+        }
     }
 
     @Test
-    public void giveReadAndWriteOneLine_whenAllLine_thenExcepted() throws IOException {
+    public void giveReadBytes_whenWrite_thenExcepted() throws IOException {
         final Path FILE = Paths.get("src", "test", "resources", "fileWithmanyOfLine.txt");
-        AIOFileWriter.write(FILE_TO_WRITE, AIOFileReader.allLines(FILE)).join();
+        try (CompletableFileWriter writer = AIOFileWriter.of(FILE_TO_WRITE)) {
 
-        assertArrayEquals(Files.readAllBytes(FILE), Files.readAllBytes(FILE_TO_WRITE));
+            AIOFileReader.bytes(FILE).subscribe((data, err) -> {
+                if (err != null) {
+                    err.printStackTrace();
+                }
+
+                if (data != null) {
+                    writer.write(data);
+                }
+            }).join();
+
+            // 等待写入完成
+            writer.getPosition().whenComplete((size, error) -> {
+                if (error != null) {
+                    error.printStackTrace();
+                }
+
+                System.out.println("总共写入字节数：" + size);
+            }).join();
+            assertArrayEquals(Files.readAllBytes(FILE), Files.readAllBytes(FILE_TO_WRITE));
+        }
     }
 
     @Test
-    public void giveReadAndWriteOneLine_whenAllByte_thenExcepted() throws IOException {
+    public void giveReadAllLines_whenWrite_thenExcepted() throws IOException {
         final Path FILE = Paths.get("src", "test", "resources", "fileWithmanyOfLine.txt");
-        AIOFileWriter.write(FILE_TO_WRITE,
-                AIOFileReader.allBytes(FILE).map(bytes -> new String(bytes, StandardCharsets.UTF_8))).join();
+        try (CompletableFileWriter writer = AIOFileWriter.of(FILE_TO_WRITE)) {
 
-        assertArrayEquals(Files.readAllBytes(FILE), Files.readAllBytes(FILE_TO_WRITE));
+            AIOFileReader.allLines(FILE).subscribe((data, err) -> {
+                if (err != null) {
+                    err.printStackTrace();
+                }
+
+                if (data != null) {
+                    writer.write(data);
+                }
+            }).join();
+
+            // 等待写入完成
+            writer.getPosition().whenComplete((size, error) -> {
+                if (error != null) {
+                    error.printStackTrace();
+                }
+
+                System.out.println("总共写入字节数：" + size);
+            }).join();
+
+            assertArrayEquals(Files.readAllBytes(FILE), Files.readAllBytes(FILE_TO_WRITE));
+        }
+    }
+
+    @Test
+    public void giveReadAllBytes_whenWrite_thenExcepted() throws IOException {
+        final Path FILE = Paths.get("src", "test", "resources", "fileWithmanyOfLine.txt");
+        try (CompletableFileWriter writer = AIOFileWriter.of(FILE_TO_WRITE)) {
+
+            AIOFileReader.allBytes(FILE).subscribe((data, err) -> {
+                if (err != null) {
+                    err.printStackTrace();
+                }
+
+                if (data != null) {
+                    writer.write(data);
+                }
+            }).join();
+
+            // 等待写入完成
+            writer.getPosition().whenComplete((size, error) -> {
+                if (error != null) {
+                    error.printStackTrace();
+                }
+
+                System.out.println("总共写入字节数：" + size);
+            }).join();
+
+            assertArrayEquals(Files.readAllBytes(FILE), Files.readAllBytes(FILE_TO_WRITE));
+        }
     }
 }
