@@ -48,7 +48,8 @@ public class AIOFileReaderManualTest {
     @Test
     public void giveFileAndRead_whenTakeWhile_thenStopRead() {
         // 详细演示takeWhile的功能:
-        // 1. 控制台输出前部文件内容，框架日志提示[Cancel file reading. [16384 bytes] has been readed]，读取操作取消，不在读取文件数据。
+        // 1. 控制台输出前部文件内容，框架日志提示[Cancel file reading. [16384 bytes] has been
+        // readed]，读取操作取消，不在读取文件数据。
         // 2. [16384 bytes] 信息中，16384是框架默认读取缓冲区大小，由此可以判断：文件只读取了一次
         final Path FILE = Paths.get("src", "test", "resources", "fileWithmanyOfLine.txt");
 
@@ -64,8 +65,7 @@ public class AIOFileReaderManualTest {
                     System.out.println("after:" + data);
                 })
                 // 异常处理
-                .onError(err -> err.printStackTrace())                   
-                .blockingSubscribe();
+                .onError(err -> err.printStackTrace()).blockingSubscribe();
     }
 
     @Test
@@ -149,13 +149,11 @@ public class AIOFileReaderManualTest {
     public void giveFile_whenOnNextExceptionAndSubscribe_thenReadCancel() throws IOException, InterruptedException {
         final Path FILE = Paths.get("src", "test", "resources", "fileWithmanyOfLine.txt");
         AIOFileReader.bytes(FILE).onNext(data -> {
-            if (data != null) {
-                if (random.nextBoolean()) {
-                    throw new RuntimeException("业务处理异常");
-                }
-
-                System.out.println("data :" + data);
+            if (random.nextBoolean()) {
+                throw new RuntimeException("业务处理异常");
             }
+
+            System.out.println("data :" + data);
         }).subscribe(data -> {
         }, err -> err.printStackTrace()).join();
 

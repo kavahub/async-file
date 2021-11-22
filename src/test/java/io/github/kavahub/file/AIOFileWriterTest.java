@@ -73,9 +73,7 @@ public class AIOFileWriterTest {
         try (CompletableFileWriter writer = AIOFileWriter.of(FILE_TO_WRITE)) {
 
             AIOFileReader.line(FILE).subscribe(data -> {
-                if (data != null) {
-                    writer.write(data + System.lineSeparator());
-                }
+                writer.write(data + System.lineSeparator());
             }, err -> err.printStackTrace()).join();
 
             // 等待写入完成
