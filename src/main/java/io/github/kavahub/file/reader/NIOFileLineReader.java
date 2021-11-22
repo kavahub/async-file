@@ -6,7 +6,7 @@ import java.nio.file.Path;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ForkJoinPool;
-import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 import io.github.kavahub.file.query.Query;
 import lombok.extern.slf4j.Slf4j;
@@ -41,10 +41,10 @@ public class NIOFileLineReader {
         }
 
         @Override
-        public CompletableFuture<Void> subscribe(BiConsumer<? super String, ? super Throwable> consumer) {
+        public CompletableFuture<Void> subscribe(Consumer<? super String> onNext, Consumer<? super Throwable> onError) {
             CompletableFuture<Void> future = new CompletableFuture<>();
 
-            FileReader reader = new FileReader(file, consumer, future);
+            FileReader reader = new FileReader(file, onNext, onError, future);
             ASYNC_POOL.execute(reader);
             return future;
         }
@@ -55,7 +55,8 @@ public class NIOFileLineReader {
      */
     private static class FileReader implements Runnable {
         private final Path file;
-        private final BiConsumer<? super String, ? super Throwable> consumer;
+        private final Consumer<? super String> onNext;
+        private final Consumer<? super Throwable> onError;
         private final CompletableFuture<Void> future;
 
         private boolean isCancel = false;
@@ -73,12 +74,14 @@ public class NIOFileLineReader {
         /**
          * 
          * @param file
-         * @param consumer
+         * @param onNext
+         * @param onError
          * @param future
          */
-        public FileReader(Path file, BiConsumer<? super String, ? super Throwable> consumer, CompletableFuture<Void> future) {
+        public FileReader(Path file, Consumer<? super String> onNext, Consumer<? super Throwable> onError, CompletableFuture<Void> future) {
             this.file = file;
-            this.consumer = consumer;
+            this.onNext = onNext;
+            this.onError = onError;
             this.future = future;
 
             this.future.whenComplete((data, error) -> {
@@ -103,13 +106,13 @@ public class NIOFileLineReader {
                         }
                     }
                     totalLine++;
-                    consumer.accept(line, null);
+                    onNext.accept(line);
                 }
             } catch (Exception e) {
                 if (log.isErrorEnabled()) {
                     log.error("Failed while reading", e);
                 }
-                consumer.accept(null, e);
+                onError.accept(e);
             }
 
             if (log.isDebugEnabled() && !isCancel) {

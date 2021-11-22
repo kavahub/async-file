@@ -1,7 +1,7 @@
 package io.github.kavahub.file.query;
 
 import java.util.concurrent.CompletableFuture;
-import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 public final class QueryTakeWhile<T> extends Query<T> {
@@ -24,8 +24,8 @@ public final class QueryTakeWhile<T> extends Query<T> {
     }
 
     @Override
-    public CompletableFuture<Void> subscribe(BiConsumer<? super T, ? super Throwable> consumer) {
-        subscription = query.subscribe((item, err) -> {
+    public CompletableFuture<Void> subscribe(Consumer<? super T> onNext, Consumer<? super Throwable> onError) {
+        subscription = query.subscribe(data -> {
             /**
              * After cancellation of upstream subscription we may still receive updates on
              * consumer. To avoid propagation we must check if we have already cancelled the
@@ -37,13 +37,8 @@ public final class QueryTakeWhile<T> extends Query<T> {
                 return;
             }
 
-            if (err != null) {
-                consumer.accept(null, err);
-                return;
-            }
-
-            if (p.test(item)) {
-                consumer.accept(item, null);
+            if (p.test(data)) {
+                onNext.accept(data);
             } else {
                 if (!finished) {
                     finished = true;
@@ -54,7 +49,7 @@ public final class QueryTakeWhile<T> extends Query<T> {
                         subscription.complete(null);
                 }
             }
-        });
+        }, onError);
         return subscription;
     }
 }

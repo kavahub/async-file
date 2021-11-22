@@ -34,6 +34,7 @@ public class AIOFileWriterManualTest {
 
     @Test
     public void whenWriteWithQueryFilter() throws IOException {
+        // 边度边写
         final Path FILE = Paths.get("src", "test", "resources", "fileWithmanyOfLine.txt");
 
         try (CompletableFileWriter writer = AIOFileWriter.of(FILE_TO_WRITE)) {
@@ -46,16 +47,9 @@ public class AIOFileWriterManualTest {
                     // 转换成大写
                     .map(String::toUpperCase)
                     // 加入换行符
-                    .map(line -> line + System.lineSeparator())
-                    .subscribe((data, err) -> {
-                        if (err != null) {
-                            err.printStackTrace();
-                        }
-
-                        if (data != null) {
-                            writer.write(data);
-                        }
-                    }).join();
+                    .map(line -> line + System.lineSeparator()).subscribe(data -> {
+                        writer.write(data);
+                    }, err -> err.printStackTrace()).join();
 
             // 等待写入完成
             writer.getPosition().whenComplete((size, error) -> {
@@ -66,6 +60,6 @@ public class AIOFileWriterManualTest {
                 System.out.println("总共写入字节数：" + size);
             }).join();
         }
-        ;
+
     }
 }

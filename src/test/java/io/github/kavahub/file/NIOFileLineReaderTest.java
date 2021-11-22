@@ -20,12 +20,11 @@ public class NIOFileLineReaderTest {
         final Path FILE = Paths.get("src", "test", "resources", "fileToRead.txt");
 
         List<String> actual = new ArrayList<>();
-        NIOFileLineReader.read(FILE).subscribe((data, err) -> {
+        NIOFileLineReader.read(FILE).subscribe(data -> {
             actual.add(data);
-        }).join();
+        }, err -> err.printStackTrace()).join();
 
         assertThat(actual).containsExactly(Files.readAllLines(FILE).toArray(new String[] {}));
     }
-
 
 }

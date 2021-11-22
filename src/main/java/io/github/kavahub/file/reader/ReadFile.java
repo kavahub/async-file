@@ -7,7 +7,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-
 /**
  * 
  */
@@ -15,7 +14,12 @@ public final class ReadFile {
     /**
      * 
      */
-    private Consumer<Throwable> whenError;
+    private Consumer<Throwable> whenReadError;
+
+    /**
+     * 
+     */
+    private Consumer<Throwable> whenHandleDataError;
 
     /**
      * 
@@ -27,9 +31,9 @@ public final class ReadFile {
      */
     private Consumer<Integer> whenFinish;
 
-        /**
-     * 
-     */
+    /**
+    * 
+    */
     private Consumer<Integer> whenCancel;
 
     private final AsynchronousFileChannel channel;
@@ -45,11 +49,16 @@ public final class ReadFile {
         return new ReadFile(channel, bufferSize);
     }
 
-    public ReadFile whenError(Consumer<Throwable> whenError) {
-        this.whenError = whenError;
+    public ReadFile whenReadError(Consumer<Throwable> whenReadError) {
+        this.whenReadError = whenReadError;
         return this;
     }
-    
+
+    public ReadFile whenHandleDataError(Consumer<Throwable> whenHandleDataError) {
+        this.whenHandleDataError = whenHandleDataError;
+        return this;
+    }
+
     public ReadFile whenRead(BiConsumer<byte[], Integer> whenRead) {
         this.whenRead = whenRead;
         return this;
@@ -85,14 +94,18 @@ public final class ReadFile {
         final CompletionHandler<Integer, ByteBuffer> handler = new CompletionHandler<Integer, ByteBuffer>() {
             @Override
             public void completed(Integer result, ByteBuffer buffer) {
-                if(result > 0) {
+                if (result > 0) {
                     position.addAndGet(result);
                     buffer.flip();
 
                     byte[] data = new byte[result];
                     buffer.get(data);
-                    whenRead.accept(data, position.get());
-                   
+
+                    try {
+                        whenRead.accept(data, position.get());
+                    } catch (Exception e) {
+                        whenHandleDataError.accept(e);
+                    }
 
                     if (!isCancelled()) {
                         read0(channel, position.get(), this);
@@ -106,7 +119,7 @@ public final class ReadFile {
 
             @Override
             public void failed(Throwable exc, ByteBuffer buffer) {
-                whenError.accept(exc);
+                whenReadError.accept(exc);
             }
         };
         read0(channel, position.get(), handler);

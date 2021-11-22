@@ -2,7 +2,7 @@ package io.github.kavahub.file.query;
 
 import java.util.Iterator;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -10,7 +10,8 @@ import java.util.function.Predicate;
  * 
  */
 public abstract class Query<T> {
-    public abstract CompletableFuture<Void> subscribe(BiConsumer<? super T, ? super Throwable> consumer);
+    public abstract CompletableFuture<Void> subscribe(Consumer<? super T> onNext,
+            Consumer<? super Throwable> onError);
 
     public static <U> Query<U> of(U data) {
         return new QueryOf<>(data);
@@ -31,6 +32,7 @@ public abstract class Query<T> {
     /**
      * Returns an asynchronous sequential ordered query whose elements are the
      * specified values in the Iterator parameter.
+     * 
      * @param <U>
      * @param iter
      * @return
@@ -59,8 +61,12 @@ public abstract class Query<T> {
      * @param action
      * @return
      */
-    public final Query<T> onNext(BiConsumer<? super T, ? super Throwable> action) {
+    public final Query<T> onNext(Consumer<? super T> action) {
         return new QueryOnNext<>(this, action);
+    }
+
+    public final Query<T> onError(Consumer<? super Throwable> action) {
+        return new QueryOnError<>(this, action);
     }
 
     /**
@@ -146,7 +152,8 @@ public abstract class Query<T> {
      * 
      */
     public final void blockingSubscribe() {
-        this.subscribe((item, err) -> {
+        this.subscribe(item -> {
+        }, er -> {
         }).join(); // In both previous cases cf will raise an exception.
     }
 }

@@ -33,21 +33,21 @@ async-file工具提供Java异步读写文件的能力，使用Java NIO 库开发
 <dependency> 
   <groupId>io.github.kavahub</groupId>
   <artifactId>kava-async-file</artifactId>
-  <version>1.0.1.RELEASE</version>
+  <version>1.0.0.RELEASE</version>
 </dependency>
 ```
 
 如果是Gradle项目，需要添加依赖：
 
 ```groovy
-implementation 'io.github.kavahub:kava-async-file:1.0.1.RELEASE'
+implementation 'io.github.kavahub:kava-async-file:1.0.0.RELEASE'
 ```
 
-#### AIOFileReader使用说明
+#### 使用说明
 
 [`AIOFileReader`](src/main/java/io/github/kavahub/file/reader/AIOFileReader.java)方法列表:
 
-- `Query<byte[]> bytes(Path file)` : 读取文件，返回文件数据字节数组，每次读取的大小由默认缓冲区决定。
+- `Query<byte[]> bytes(Path file)` : 读取文件，返回文件数据字节数组，读取的大小有默认缓冲区决定。
 
 - `Query<byte[]> allBytes(Path file)` : 读取文件，返回文件所有数据字节数组。每次按默认缓冲区读取文件，完成后合并。
 
@@ -64,73 +64,22 @@ public static final int BUFFER_SIZE = 4096 * 4;
 示例：
 
 ```java
-// 按行读取文件，并输出到控制台
+        // 按行读取文件，并输出到控制台
         final Path FILE = Paths.get("src", "test", "resources", "fileWithmanyOfLine.txt");
-        
-        AIOFileReader.line(FILE)
-                // 订阅行数据
-                .subscribe(data -> {
-                    // 文件行处理，如输出到控制台
-                    System.out.println(data);
-                    // doSomethingData(data)
-                }, err -> {
-                    // 异常处理
-                    err.printStackTrace();
-                    // doSomethingError(err)
-                })
-                // 等待文件读取完成
-                .join();
+        AIOFileReader.line(FILE).subscribe((data, err) -> {
+            if (err != null) {
+                // 处理异常，如记录日志
+                err.printStackTrace();
+            }
 
-        // 也可以这样写
-        AIOFileReader.line(FILE)
-                // 订阅数据
-                .onNext(data -> {
-                    // 文件行处理，如输出到控制台
-                    System.out.println(data);
-                    // doSomethingData(data)
-                })
-                // 订阅异常
-                .onError(err -> {
-                    // 异常处理
-                    err.printStackTrace();
-                    // doSomethingError(err)
-                })
-                // 等待文件读取完成
-                .blockingSubscribe();
+            if (data != null) {
+                // 文件行处理，如输出到控制台
+                System.out.println(data);
+            }
+        })
+        // 等待所有行处理完成
+        .join();
 ```
-
-这种适用广泛，我们经常读取文本文件，统计相关信息，如：单词统计等，只需要编写 `doSomethingData` 代码。编写`doSomethingError` 代码，处理读或者业务处理中的异常，我们建议将异常输出到日志
-
-`doSomethingData` 业务中的异常，会导致读文件中断，整个文件操作终止。异常 信息可以在 `doSomethingError` 中处理
-
-示例：
-
-```java
-// 按行读取文件，并输出到控制台
-        final Path FILE = Paths.get("src", "test", "resources", "fileWithmanyOfLine.txt");
-        CompletableFuture<Void> future = AIOFileReader.line(FILE)
-                // 订阅行数据
-                .subscribe(data -> {
-                    // 文件行处理，如输出到控制台
-                    System.out.println(data);
-                    // doSomethingData(data)
-                }, err -> {
-                    // 异常处理
-                    err.printStackTrace();
-                    // doSomethingError(err)
-                });
-
-        // 处理其他业务逻辑
-        TimeUnit.SECONDS.sleep(2); // 模拟业务
-
-        // 循环，直到文件处理完成
-        while (!future.isDone()) {
-        }
-
-        System.out.println("文件处理完成");
-```
-
-`AIOFileReader` 读文件是异步的，所以可以处理写其他的业务
 
 示例：
 
@@ -150,9 +99,7 @@ public static final int BUFFER_SIZE = 4096 * 4;
                 // 过滤单词
                 .filter(word -> word.length() > MIN && word.length() < MAX)
                 // 统计单词次数
-                .onNext((w) -> words.merge(w, 1, Integer::sum))
-                // 异常处理
-                .onError(err -> err.printStackTrace())
+                .onNext((w, err) -> words.merge(w, 1, Integer::sum))
                 // 阻塞，直到文件统计完毕
                 .blockingSubscribe();
 
@@ -167,6 +114,7 @@ public static final int BUFFER_SIZE = 4096 * 4;
 ```java
         // 统计“*** END OF ”行之前所有单词的数量
         // 当读取到"*** END OF "行时，读线程会取消读操作，避免继续读取不需要处理的数据
+
         final Path FILE = Paths.get("src", "test", "resources", "fileToCount.txt");
 
         int[] count = { 0 };
@@ -182,11 +130,15 @@ public static final int BUFFER_SIZE = 4096 * 4;
                 // 去重
                 .distinct()
                 // 统计数量
-                .onNext((word) -> {
+                .onNext((word, err) -> {
+                    if (err == null)
                         count[0]++;
                 })
-                // 异常处理
-                .onError(err -> err.printStackTrace())                
+                // 显示处理中的异常
+                .onNext((word, err) -> {
+                    if (err != null)
+                        err.printStackTrace();
+                })
                 // 阻塞，知道文件读取完成
                 .blockingSubscribe();
         assertEquals(5206, count[0]);
@@ -200,20 +152,31 @@ public static final int BUFFER_SIZE = 4096 * 4;
         // 2. [16384 bytes] 信息中，16384是框架默认读取缓冲区大小，由此可以判断：文件只读取了一次
         final Path FILE = Paths.get("src", "test", "resources", "fileWithmanyOfLine.txt");
 
+        int[] count = { 0 };
         AIOFileReader.line(FILE)
                 // 控制台输出
-                .onNext((data) -> {
-                    System.out.println("before:" + data);
+                .onNext((data, err) -> {
+                    if (err != null) {
+                        err.printStackTrace();
+                    }
+
+                    if (data != null) {
+                        System.out.println("before:" + data);
+                    }
                 })
-                // 终止文件读操纵
+                // 终止文件读操纵。
                 .takeWhile(line -> false)
-                //
-                .onNext((data) -> {
-                    System.out.println("after:" + data);
-                })
-                // 异常处理
-                .onError(err -> err.printStackTrace())                   
-                .blockingSubscribe();
+                .onNext((data, err) -> {
+                    if (err != null) {
+                        err.printStackTrace();
+                    }
+
+                    if (data != null) {
+                        System.out.println("after:" +data);
+                    }
+                }).blockingSubscribe();
+
+        assertEquals(0, count[0]);
 ```
 
 示例：
@@ -223,14 +186,17 @@ public static final int BUFFER_SIZE = 4096 * 4;
 
         final Path FILE = Paths.get("src", "test", "resources", "fileWithmanyOfLine.txt");
 
-        CompletableFuture<Void> future = AIOFileReader.line(FILE).subscribe(data -> {
+        CompletableFuture<Void> future = AIOFileReader.line(FILE).subscribe((data, err) -> {
+            if (err != null) {
+                System.out.println("error:" + err.getMessage());
+            }
             try {
                 TimeUnit.MILLISECONDS.sleep(10);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
             System.out.println(Thread.currentThread().getName());
-        }, err -> err.printStackTrace());
+        });
 
         TimeUnit.MILLISECONDS.sleep(1000);
 
@@ -243,9 +209,12 @@ public static final int BUFFER_SIZE = 4096 * 4;
         // 显示读文件线程的名称
         final Path FILE = Paths.get("src", "test", "resources", "fileWithmanyOfLine.txt");
 
-        AIOFileReader.bytes(FILE).subscribe(data -> {
+        AIOFileReader.bytes(FILE).subscribe((data, err) -> {
+            if (err != null) {
+                err.printStackTrace();
+            }
             System.out.println(Thread.currentThread().getName());
-        }, err -> err.printStackTrace()).join();
+        }).join();
 ```
 
 输出结果如下：
@@ -266,8 +235,6 @@ Thread-7
 
 其结果表明：有两个线程读取文件，线程交替读取以保证读取文件数据的顺序，这是 [`AsynchronousFileChannel`](https://docs.oracle.com/javase/10/docs/api/java/nio/channels/AsynchronousFileChannel.html) 实现的
 
-
-#### AIOFileWriter使用说明
 
 [`AIOFileWriter`](src/main/java/io/github/kavahub/file/writer/AIOFileWriter.java)方法列表:
 
@@ -298,35 +265,40 @@ Thread-7
 示例：
 
 ```java
-        // 边度边写
-        final Path FILE = Paths.get("src", "test", "resources", "fileWithmanyOfLine.txt");
-
-        try (CompletableFileWriter writer = AIOFileWriter.of(FILE_TO_WRITE)) {
-
-            AIOFileReader.line(FILE)
-                    // 忽略前2行
-                    .skip(2)
-                    // 过滤掉空行
-                    .filter(line -> !line.isBlank())
-                    // 转换成大写
-                    .map(String::toUpperCase)
-                    // 加入换行符
-                    .map(line -> line + System.lineSeparator()).subscribe(data -> {
-                        writer.write(data);
-                    }, err -> err.printStackTrace()).join();
-
-            // 等待写入完成
-            writer.getPosition().whenComplete((size, error) -> {
-                if (error != null) {
-                    error.printStackTrace();
-                }
-
-                System.out.println("总共写入字节数：" + size);
-            }).join();
-        }
+        // 字符流写入
+        Query<String>  data = Query.of("This is file content：你好")
+            .flatMapMerge(line -> Query.of(line.split(" ")))
+            .map((line) -> line + System.lineSeparator());
+        AIOFileWriter.write(Paths.get(FILE_TO_WRITE), data).join();
 ```
 
-#### NIOFileLineReader使用说明
+示例：
+
+```java
+        // 字符流转换后写入
+        Query<String>  data = Query.of("This is file content：你好")
+            .flatMapMerge(line -> Query.of(line.split(" ")))
+            .map((line) -> line + System.lineSeparator());
+        AIOFileWriter.write(Paths.get(FILE_TO_WRITE), data).join();
+```
+
+示例：
+
+```java
+        // 边读边写
+        final Path FILE = Paths.get("src", "test", "resources", "fileWithmanyOfLine.txt");
+
+        Query<String> reader = AIOFileReader.line(FILE)
+            // 忽略前2行
+            .skip(2)
+            // 过滤掉空行
+            .filter(line -> !line.isBlank())
+            // 转换成大写
+            .map(String::toUpperCase)
+            // 加入换行符
+            .map((line) -> line + System.lineSeparator());
+        AIOFileWriter.write(Paths.get(FILE_TO_WRITE), reader).join();
+```
 
 [`NIOFileLineReader`](src/main/java/io/github/kavahub/file/reader/NIOFileLineReader.java) 方法列表：
 
@@ -335,12 +307,13 @@ Thread-7
 ```java
         // 读取文件行并过滤
         final Path FILE = Paths.get("src", "test", "resources", "fileWithmanyOfLine.txt");
-        NIOFileLineReader.read(FILE).subscribe(data -> {
-            System.out.println(Thread.currentThread().getName());
-        }, err -> err.printStackTrace()).join();
+        NIOFileLineReader.read(FILE).filter(line -> !line.trim().isEmpty()).onNext((data, err) -> {
+            System.out.println(data);
+        }).blockingSubscribe();
 ```
 
-#### 关于使用建议
+
+关于使用的建议：
 
 - 文件的异步读写，并不是为了提高文件的读取性能，而是提高文件读取的吞吐量（读取更多的文件，并保持性能，使JVM可以稳定运行）。
 - 在大多数情况下，使用Jdk提供的[`Files`](https://docs.oracle.com/javase/10/docs/api/java/nio/file/Files.html)或许更合适。
@@ -393,10 +366,6 @@ mvn nexus-staging:drop
 #### 其他开源项目
 
 - [RxIo](https://github.com/javasync/RxIo) : Asynchronous non-blocking File Reader and Writer library for Java
-
-#### 历史版本
-
-[1.0.0-RELEASE](./README-1.0.0.RELEASE.md)
 
 #### 参考文档
 

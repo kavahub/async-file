@@ -3,7 +3,7 @@ package io.github.kavahub.file.query;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 public final class QueryFlatMapMerge<T, R> extends Query<R> {
@@ -17,18 +17,14 @@ public final class QueryFlatMapMerge<T, R> extends Query<R> {
     }
 
     @Override
-    public CompletableFuture<Void> subscribe(BiConsumer<? super R, ? super Throwable> consumer) {
+    public CompletableFuture<Void> subscribe(Consumer<? super R> onNext, Consumer<? super Throwable> onError) {
         List<CompletableFuture<Void>> cfs = new ArrayList<>();
         return query
-            .subscribe((item, err) -> {
-                if (err != null) {
-                    consumer.accept(null, err);
-                    return;
-                }
+            .subscribe(data -> {
                 cfs.add(mapper
-                    .apply(item)
-                    .subscribe(consumer::accept));
-            })
+                    .apply(data)
+                    .subscribe(onNext::accept, onError));
+            }, onError)
             .thenCompose(ignore -> CompletableFuture.allOf(cfs.toArray(new CompletableFuture[cfs.size()])));
     }
     

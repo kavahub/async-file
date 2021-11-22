@@ -72,15 +72,11 @@ public class AIOFileWriterTest {
         final Path FILE = Paths.get("src", "test", "resources", "fileWithmanyOfLine.txt");
         try (CompletableFileWriter writer = AIOFileWriter.of(FILE_TO_WRITE)) {
 
-            AIOFileReader.line(FILE).subscribe((data, err) -> {
-                if (err != null) {
-                    err.printStackTrace();
-                }
-
+            AIOFileReader.line(FILE).subscribe(data -> {
                 if (data != null) {
                     writer.write(data + System.lineSeparator());
                 }
-            }).join();
+            }, err -> err.printStackTrace()).join();
 
             // 等待写入完成
             writer.getPosition().whenComplete((size, error) -> {
@@ -100,15 +96,9 @@ public class AIOFileWriterTest {
         final Path FILE = Paths.get("src", "test", "resources", "fileWithmanyOfLine.txt");
         try (CompletableFileWriter writer = AIOFileWriter.of(FILE_TO_WRITE)) {
 
-            AIOFileReader.bytes(FILE).subscribe((data, err) -> {
-                if (err != null) {
-                    err.printStackTrace();
-                }
-
-                if (data != null) {
-                    writer.write(data);
-                }
-            }).join();
+            AIOFileReader.bytes(FILE).subscribe(data -> {
+                writer.write(data);
+            }, err -> err.printStackTrace()).join();
 
             // 等待写入完成
             writer.getPosition().whenComplete((size, error) -> {
@@ -127,15 +117,9 @@ public class AIOFileWriterTest {
         final Path FILE = Paths.get("src", "test", "resources", "fileWithmanyOfLine.txt");
         try (CompletableFileWriter writer = AIOFileWriter.of(FILE_TO_WRITE)) {
 
-            AIOFileReader.allLines(FILE).subscribe((data, err) -> {
-                if (err != null) {
-                    err.printStackTrace();
-                }
-
-                if (data != null) {
-                    writer.write(data);
-                }
-            }).join();
+            AIOFileReader.allLines(FILE).subscribe(data -> {
+                writer.write(data);
+            }, err -> err.printStackTrace()).join();
 
             // 等待写入完成
             writer.getPosition().whenComplete((size, error) -> {
@@ -155,15 +139,9 @@ public class AIOFileWriterTest {
         final Path FILE = Paths.get("src", "test", "resources", "fileWithmanyOfLine.txt");
         try (CompletableFileWriter writer = AIOFileWriter.of(FILE_TO_WRITE)) {
 
-            AIOFileReader.allBytes(FILE).subscribe((data, err) -> {
-                if (err != null) {
-                    err.printStackTrace();
-                }
-
-                if (data != null) {
-                    writer.write(data);
-                }
-            }).join();
+            AIOFileReader.allBytes(FILE).subscribe(data -> {
+                writer.write(data);
+            }, err -> err.printStackTrace()).join();
 
             // 等待写入完成
             writer.getPosition().whenComplete((size, error) -> {

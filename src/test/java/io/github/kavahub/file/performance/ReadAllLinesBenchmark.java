@@ -56,9 +56,9 @@ public class ReadAllLinesBenchmark {
     @Benchmark
     public String readAllUsingAsyncReader() throws InterruptedException{
         StringBuilder rslt = new StringBuilder();
-        AIOFileReader.allLines(file).subscribe((data, error) -> {
+        AIOFileReader.allLines(file).subscribe(data -> {
             rslt.append(data);
-        }).join();
+        }, err -> err.printStackTrace()).join();
          
         return rslt.toString();
     }

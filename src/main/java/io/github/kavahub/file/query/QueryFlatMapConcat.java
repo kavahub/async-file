@@ -1,31 +1,26 @@
 package io.github.kavahub.file.query;
 
 import java.util.concurrent.CompletableFuture;
-import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 public final class QueryFlatMapConcat<T, R> extends Query<R> {
-    private final Query<T> upstream;
+    private final Query<T> query;
     private final Function<? super T, ? extends Query<? extends R>> mapper;
 
 
-    public QueryFlatMapConcat(Query<T> upstream, Function<? super T, ? extends Query<? extends R>> mapper) {
-        this.upstream = upstream;
+    public QueryFlatMapConcat(Query<T> query, Function<? super T, ? extends Query<? extends R>> mapper) {
+        this.query = query;
         this.mapper = mapper;
     }
 
     @Override
-    public CompletableFuture<Void> subscribe(BiConsumer<? super R, ? super Throwable> consumer) {
-        return upstream.subscribe((item, err) -> {
-            if(err != null) {
-                consumer.accept(null, err);
-                return;
-            }
+    public CompletableFuture<Void> subscribe(Consumer<? super R> onNext, Consumer<? super Throwable> onError) {
+        return query.subscribe(data -> {
             mapper
-                .apply(item)
-                .subscribe(consumer::accept)
+                .apply(data)
+                .subscribe(onNext::accept, onError)
                 .join(); // !!!! Replace this by Continuation !!!
-        });
+        }, onError);
     }
-    
 }

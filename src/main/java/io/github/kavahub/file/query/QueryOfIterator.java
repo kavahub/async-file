@@ -2,7 +2,7 @@ package io.github.kavahub.file.query;
 
 import java.util.Iterator;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 public final class QueryOfIterator<T> extends Query<T> {
     private final Iterator<T> iter;
@@ -12,10 +12,15 @@ public final class QueryOfIterator<T> extends Query<T> {
     }
 
     @Override
-    public CompletableFuture<Void> subscribe(BiConsumer<? super T, ? super Throwable> consumer) {
-        while(iter.hasNext()) {
-            consumer.accept(iter.next(), null);
+    public CompletableFuture<Void> subscribe(Consumer<? super T> onNext, Consumer<? super Throwable> onError) {
+        try {
+            while(iter.hasNext()) {
+                onNext.accept(iter.next());
+            }
+        } catch (Exception e) {
+            onError.accept(e);
         }
+
         return CompletableFuture.completedFuture(null);
     }
 

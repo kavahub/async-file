@@ -1,11 +1,10 @@
 package io.github.kavahub.file.reader;
 
-import java.io.IOException;
 import java.nio.channels.AsynchronousFileChannel;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 import io.github.kavahub.file.ChannelHelper;
 import io.github.kavahub.file.query.Query;
@@ -22,7 +21,7 @@ public class FileByteReaderQuery extends Query<byte[]> {
     }
 
     @Override
-    public CompletableFuture<Void> subscribe(BiConsumer<? super byte[], ? super Throwable> consumer) {
+    public CompletableFuture<Void> subscribe(Consumer<? super byte[]> onNext, Consumer<? super Throwable> onError) {
         final CompletableFuture<Void> future = new CompletableFuture<>();
 
         try {
@@ -33,12 +32,17 @@ public class FileByteReaderQuery extends Query<byte[]> {
             AsynchronousFileChannel channel = AsynchronousFileChannel.open(file, StandardOpenOption.READ);
             ReadFile reader = ReadFile.of(channel, bufferSize)
                     // 读取文件异常时
-                    .whenError(throwable -> {
+                    .whenReadError(throwable -> {
                         if (log.isErrorEnabled()) {
                             log.error("Failed while file reading", throwable);
                         }
 
-                        consumer.accept(null, throwable);
+                        future.complete(null);
+                        onError.accept(throwable);
+                    })
+                    .whenHandleDataError(throwable -> {
+                        future.complete(null);
+                        onError.accept(throwable);
                     })
                     // 读取文件完成时
                     .whenFinish(size -> {
@@ -62,7 +66,7 @@ public class FileByteReaderQuery extends Query<byte[]> {
                             log.debug("[{} bytes] has been readed", size);
                         }
 
-                        consumer.accept(bytes, null);
+                        onNext.accept(bytes);
                     });
 
 
@@ -80,8 +84,9 @@ public class FileByteReaderQuery extends Query<byte[]> {
                     ChannelHelper.close(channel);
                 }
             });
-        } catch (IOException e) {
-            return CompletableFuture.failedFuture(e);
+        } catch (Exception e) {
+            future.complete(null);
+            onError.accept(e);
         }
         return future;
     }

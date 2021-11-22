@@ -1,7 +1,7 @@
 package io.github.kavahub.file.query;
 
 import java.util.concurrent.CompletableFuture;
-import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 public final class QueryFilter<T> extends Query<T> {
@@ -16,14 +16,10 @@ public final class QueryFilter<T> extends Query<T> {
 
 
     @Override
-    public CompletableFuture<Void> subscribe(BiConsumer<? super T, ? super Throwable> consumer) {
-        return query.subscribe((item, err) -> {
-            if(err != null) {
-                consumer.accept(null, err);
-                return;
-            }
-            if(p.test(item)) consumer.accept(item, null);
-        });
+    public CompletableFuture<Void> subscribe(Consumer<? super T> onNext, Consumer<? super Throwable> onError) {
+        return query.subscribe(data-> {
+            if(p.test(data)) onNext.accept(data);
+        }, onError);
     }
     
 }

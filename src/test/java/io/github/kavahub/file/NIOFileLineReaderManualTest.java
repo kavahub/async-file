@@ -15,24 +15,25 @@ public class NIOFileLineReaderManualTest {
     
     @Test
     public void givenFile_whenRead_thenThreadInfo() throws IOException {
+        // 读取文件行并过滤
         final Path FILE = Paths.get("src", "test", "resources", "fileWithmanyOfLine.txt");
-        NIOFileLineReader.read(FILE).subscribe((data, err) -> {
+        NIOFileLineReader.read(FILE).subscribe(data -> {
             System.out.println(Thread.currentThread().getName());
-        }).join();
+        }, err -> err.printStackTrace()).join();
     }
 
     @Test
     public void givenFile_whenRead_thenPrint() throws IOException {
         final Path FILE = Paths.get("src", "test", "resources", "fileWithmanyOfLine.txt");
-        NIOFileLineReader.read(FILE).subscribe((data, err) -> {
+        NIOFileLineReader.read(FILE).subscribe(data -> {
             System.out.println(data);
-        }).join();
+        }, err -> err.printStackTrace()).join();
     }
 
     @Test
     public void givenFile_whenStringOperate_thenPrint() throws IOException {
         final Path FILE = Paths.get("src", "test", "resources", "fileWithmanyOfLine.txt");
-        NIOFileLineReader.read(FILE).filter(line -> !line.trim().isEmpty()).onNext((data, err) -> {
+        NIOFileLineReader.read(FILE).filter(line -> !line.trim().isEmpty()).onNext(data -> {
             System.out.println(data);
         }).blockingSubscribe();
     }
@@ -40,17 +41,17 @@ public class NIOFileLineReaderManualTest {
     @Test
     public void givenFile_whenRead_thenCancel() throws IOException {
         final Path FILE = Paths.get("src", "test", "resources", "fileWithmanyOfLine.txt");
-        CompletableFuture<Void> future = NIOFileLineReader.read(FILE).subscribe((data, err) -> {
+        CompletableFuture<Void> future = NIOFileLineReader.read(FILE).subscribe(data -> {
             try {
                 TimeUnit.MILLISECONDS.sleep(3);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             };
-            System.out.println(Thread.currentThread().getName());
-        });
+            System.out.println(data);
+        }, err -> err.printStackTrace());
 
         try {
-            TimeUnit.MILLISECONDS.sleep(5);
+            TimeUnit.MILLISECONDS.sleep(50);
         } catch (InterruptedException e) {
             e.printStackTrace();
         };

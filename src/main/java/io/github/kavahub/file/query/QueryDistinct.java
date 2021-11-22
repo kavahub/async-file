@@ -2,7 +2,7 @@ package io.github.kavahub.file.query;
 
 import java.util.HashSet;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 /**
  * 
@@ -15,15 +15,12 @@ public final class QueryDistinct<T> extends Query<T> {
     }
 
     @Override
-    public CompletableFuture<Void> subscribe(BiConsumer<? super T, ? super Throwable> cons) {
+    public CompletableFuture<Void> subscribe(Consumer<? super T> onNext, Consumer<? super Throwable> onError) {
         final HashSet<T> mem = new HashSet<>();
-        return query.subscribe((item, err) -> {
-            if(err != null) {
-                cons.accept(null, err);
-                return;
-            }
-            if(mem.add(item)) cons.accept(item, null);
-        });
+
+        return query.subscribe(data -> {
+            if(mem.add(data)) onNext.accept(data);
+        }, onError);
     }
     
 }

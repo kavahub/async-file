@@ -1,7 +1,7 @@
 package io.github.kavahub.file.query;
 
 import java.util.concurrent.CompletableFuture;
-import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 public final class QueryOfArray<T> extends Query<T> {
@@ -12,9 +12,13 @@ public final class QueryOfArray<T> extends Query<T> {
     }
 
     @Override
-    public CompletableFuture<Void> subscribe(BiConsumer<? super T, ? super Throwable> consumer) {
-        Stream.of(data).forEach(e -> consumer.accept(e, null));
+    public CompletableFuture<Void> subscribe(Consumer<? super T> onNext, Consumer<? super Throwable> onError) {
+        try {
+            Stream.of(data).forEach(e -> onNext.accept(e));
+        } catch (Exception e) {
+            onError.accept(e);
+        }
         return CompletableFuture.completedFuture(null);
     }
-    
+
 }

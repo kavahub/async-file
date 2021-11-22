@@ -1,7 +1,7 @@
 package io.github.kavahub.file.query;
 
 import java.util.concurrent.CompletableFuture;
-import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 public final class QueryMap<T, R> extends Query<R> {
@@ -15,12 +15,9 @@ public final class QueryMap<T, R> extends Query<R> {
     }
     
     @Override
-    public CompletableFuture<Void> subscribe(BiConsumer<? super R, ? super Throwable> consumer) {
-        return query.subscribe((item, err) -> {
-            if(err != null) {
-                consumer.accept(null, err);
-                return;
-            }
-            consumer.accept(mapper.apply(item), null);
-        });
-    }}
+    public CompletableFuture<Void> subscribe(Consumer<? super R> onNext, Consumer<? super Throwable> onError) {
+        return query.subscribe(data -> {
+            onNext.accept(mapper.apply(data));
+        }, onError);
+    }
+}

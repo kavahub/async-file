@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -27,9 +28,9 @@ public class AIOFileReaderTest {
     public void givenFile_whenLine() throws IOException {
         final Path FILE = Paths.get("src", "test", "resources", "fileToRead.txt");
         List<String> actual = new ArrayList<>();
-        AIOFileReader.line(FILE).subscribe((data, err) -> {
+        AIOFileReader.line(FILE).subscribe(data-> {
             actual.add(data);
-        }).join();
+        }, err -> err.printStackTrace()).join();
 
         assertThat(actual.size()).isEqualTo(6);
         assertThat(actual.get(0)).isEqualTo("super");
@@ -43,9 +44,9 @@ public class AIOFileReaderTest {
         final Path FILE = Paths.get("src", "test", "resources", "fileToReadLastLineNoEnter.txt");
 
         List<String> actual = new ArrayList<>();
-        AIOFileReader.line(FILE).subscribe((data, err) -> {
+        AIOFileReader.line(FILE).subscribe(data -> {
             actual.add(data);
-        }).join();
+        }, err -> err.printStackTrace()).join();
 
         assertThat(actual.size()).isEqualTo(6);
         assertThat(actual.get(0)).isEqualTo("super");
@@ -59,13 +60,9 @@ public class AIOFileReaderTest {
         final Path FILE = Paths.get("src", "test", "resources", "fileToReadEmptyLine.txt");
 
         List<String> actual = new ArrayList<>();
-        AIOFileReader.line(FILE).subscribe((data, err) -> {
-            if (err != null) {
-                err.printStackTrace();
-            }
-
+        AIOFileReader.line(FILE).subscribe(data -> {
             actual.add(data);
-        }).join();
+        }, err -> err.printStackTrace()).join();
 
         assertThat(actual.size()).isEqualTo(6);
         assertThat(actual.get(0)).isEqualTo(" ");
@@ -79,12 +76,9 @@ public class AIOFileReaderTest {
     public void givenFileWithManyLine_whenLine() throws IOException {
         final Path FILE = Paths.get("src", "test", "resources", "fileWithmanyOfLine.txt");
         List<String> actual = new ArrayList<>();
-        AIOFileReader.line(FILE).subscribe((data, err) -> {
-            if (err != null) {
-                err.printStackTrace();
-            }
+        AIOFileReader.line(FILE).subscribe(data -> {
             actual.add(data);
-        }).join();
+        }, err -> err.printStackTrace()).join();
 
         assertThat(actual).containsExactly(Files.readAllLines(FILE).toArray(new String[0]));
     }
@@ -93,12 +87,9 @@ public class AIOFileReaderTest {
     public void givenFileWithManyLine_whenLineAndLittleBufferSize() throws IOException {
         final Path FILE = Paths.get("src", "test", "resources", "fileWithmanyOfLine.txt");
         List<String> actual = new ArrayList<>();
-        AIOFileReader.line(FILE, 128).subscribe((data, err) -> {
-            if (err != null) {
-                err.printStackTrace();
-            }
+        AIOFileReader.line(FILE, 128).subscribe(data -> {
             actual.add(data);
-        }).join();
+        }, err -> err.printStackTrace()).join();
 
         assertThat(actual).containsExactly(Files.readAllLines(FILE).toArray(new String[0]));
     }
@@ -107,35 +98,28 @@ public class AIOFileReaderTest {
     public void givenFile_whenBytes() throws IOException {
         final Path FILE = Paths.get("src", "test", "resources", "fileToRead.txt");
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        AIOFileReader.bytes(FILE).subscribe((data, err) -> {
-            if (err != null) {
-                err.printStackTrace();
-            }
-
+        AIOFileReader.bytes(FILE).subscribe(data -> {
             try {
                 out.write(data);
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        }).join();
+        }, err -> err.printStackTrace()).join();
 
         assertArrayEquals(out.toByteArray(), Files.readAllBytes(FILE));
 
         out.close();
     }
-    
+
     @Test
     public void givenFile_whenAllBytes() throws IOException {
         final Path FILE = Paths.get("src", "test", "resources", "fileWithmanyOfLine.txt");
 
         AtomicReference<byte[]> actual = new AtomicReference<>();
 
-        AIOFileReader.allBytes(FILE).subscribe((data, err) -> {
-            if (err != null) {
-                err.printStackTrace();
-            }
+        AIOFileReader.allBytes(FILE).subscribe(data -> {
             actual.set(data);
-        }).join();
+        }, err -> err.printStackTrace()).join();
 
         assertThat(actual.get()).isEqualTo(Files.readAllBytes(FILE));
     }
@@ -146,18 +130,16 @@ public class AIOFileReaderTest {
 
         StringBuilder actual = new StringBuilder();
 
-        AIOFileReader.allLines(FILE).subscribe((data, err) -> {
-            if (err != null) {
-                err.printStackTrace();
-            }
+        AIOFileReader.allLines(FILE).subscribe(data -> {
             actual.append(data);
-        }).join();
+        }, err -> err.printStackTrace()).join();
 
         assertThat(actual.toString()).isEqualTo(Files.readString(FILE));
     }
 
     @Test
-    public void givenReadLine_whenSkipFlatMapMergeFilterOnNext() {
+    public void givenReadLine_whenCountWord() {
+        // 统计文件中单词个数，并找出次数最多的单词
         final Path FILE = Paths.get("src", "test", "resources", "fileToCount.txt");
 
         final int MIN = 5;
@@ -172,7 +154,9 @@ public class AIOFileReaderTest {
                 // 过滤单词
                 .filter(word -> word.length() > MIN && word.length() < MAX)
                 // 统计单词次数
-                .onNext((w, err) -> words.merge(w, 1, Integer::sum))
+                .onNext((w) -> words.merge(w, 1, Integer::sum))
+                // 异常处理
+                .onError(err -> err.printStackTrace())
                 // 阻塞，直到文件统计完毕
                 .blockingSubscribe();
 
@@ -183,7 +167,9 @@ public class AIOFileReaderTest {
     }
 
     @Test
-    public void givenReadLine_whenTakenWhile() {
+    public void givenReadLine_whenTakenWhile_thenReadEnd() {
+        // 统计“*** END OF ”行之前所有单词的数量
+        // 当读取到"*** END OF "行时，读线程会取消读操作，避免继续读取不需要处理的数据
         final Path FILE = Paths.get("src", "test", "resources", "fileToCount.txt");
 
         int[] count = { 0 };
@@ -199,39 +185,52 @@ public class AIOFileReaderTest {
                 // 去重
                 .distinct()
                 // 统计数量
-                .onNext((word, err) -> {
-                    if (err == null)
+                .onNext((word) -> {
                         count[0]++;
                 })
-                // 显示处理中的异常
-                .onNext((word, err) -> {
-                    if (err != null)
-                        err.printStackTrace();
-                })
+                // 异常处理
+                .onError(err -> err.printStackTrace())                
                 // 阻塞，知道文件读取完成
                 .blockingSubscribe();
         assertEquals(5206, count[0]);
     }
 
     @Test
-    public void giveFileAndRead_whenTakeWhile_thenStopRead() {
+    public void giveReadLine_whenTakeWhile_thenStopRead() {
         final Path FILE = Paths.get("src", "test", "resources", "fileToCount.txt");
 
         int[] count = { 0 };
         AIOFileReader.line(FILE)
                 // 控制台输出
-                .onNext((data, err) -> {
-                    if (err != null) {
-                        err.printStackTrace();
-                    }
+                .onNext((data) -> {
+                    System.out.println(data);
                 })
                 // 终止文件读操纵
                 .takeWhile(line -> false)
                 //
-                .onNext((word, err) -> {
+                .onNext((word) -> {
                     count[0]++;
                 }).blockingSubscribe();
 
         assertEquals(0, count[0]);
+    }
+
+    @Test
+    public void givenFileNotExist_whenRead_thenException() throws IOException {
+        final Path FILE = Paths.get("src", "test", "resources", "abc.txt");
+
+        AIOFileReader.line(FILE).subscribe(data -> {
+        }, err -> assertThat(err).isInstanceOf(NoSuchFileException.class)).join();
+    }
+
+    @Test
+    public void giveFile_whenOnNextException_thenException() throws IOException, InterruptedException {
+        final Path FILE = Paths.get("src", "test", "resources", "fileWithmanyOfLine.txt");
+
+        AIOFileReader.line(FILE).onNext((data) -> {
+            throw new RuntimeException("业务异常");
+        }).subscribe((data) -> {
+        }, err ->  assertThat(err).isInstanceOf(RuntimeException.class).hasMessageContaining("业务异常")).join();
+
     }
 }

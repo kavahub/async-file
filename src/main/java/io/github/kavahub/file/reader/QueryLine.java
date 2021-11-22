@@ -5,7 +5,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 import io.github.kavahub.file.Consts;
 import io.github.kavahub.file.query.Query;
@@ -19,27 +19,17 @@ public class QueryLine extends Query<String> {
     }
 
     @Override
-    public CompletableFuture<Void> subscribe(BiConsumer<? super String, ? super Throwable> consumer) {
-        CompletableFuture<Void> future = query.subscribe((data, error) -> {
-            if (error != null) {
-                consumer.accept(null, error);
-            }
-
-            if (data != null) {
+    public CompletableFuture<Void> subscribe(Consumer<? super String> onNext, Consumer<? super Throwable> onError) {
+        CompletableFuture<Void> future = query.subscribe(data -> {
                 // 需要识别换行符，按行输出
-                try {
-                    List<String> lines = produceLines(data);
-                    lines.forEach(line -> consumer.accept(line, null));
-                } catch (Exception e) {
-                    consumer.accept(null, e);
-                }
-            }
-        });
+                List<String> lines = produceLines(data);
+                lines.forEach(line -> onNext.accept(line));
+        }, onError);
         
         future.whenComplete((data, error) -> {
             // 处理最后一行没有换行的问题
             if (remainingByte.length > 0) {
-                consumer.accept(new String(remainingByte, StandardCharsets.UTF_8), null);
+                onNext.accept(new String(remainingByte, StandardCharsets.UTF_8));
                 remainingByte = new byte[0];
             }
         });

@@ -61,7 +61,7 @@ public class ReadLineBenchmark {
     @Benchmark
     public List<String> readLineUsingAsyncReader(){
         List<String> result = new ArrayList<>();
-        AIOFileReader.line(file).subscribe((data, err) -> result.add(data)).join();
+        AIOFileReader.line(file).subscribe(data -> result.add(data), err -> err.printStackTrace()).join();
 
         return result;
     }
@@ -69,7 +69,7 @@ public class ReadLineBenchmark {
     @Benchmark
     public List<String> readLineUsingNIOFileLineReader(){
         List<String> result = new ArrayList<>();
-        NIOFileLineReader.read(file).subscribe((data, err) -> result.add(data)).join();
+        NIOFileLineReader.read(file).subscribe(data-> result.add(data), err -> err.printStackTrace()).join();
         return result;
     }
 }
