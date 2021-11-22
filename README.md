@@ -340,7 +340,7 @@ Thread-7
         }, err -> err.printStackTrace()).join();
 ```
 
-#### 关于使用建议
+#### 使用建议
 
 - 文件的异步读写，并不是为了提高文件的读取性能，而是提高文件读取的吞吐量（读取更多的文件，并保持性能，使JVM可以稳定运行）。
 - 在大多数情况下，使用Jdk提供的[`Files`](https://docs.oracle.com/javase/10/docs/api/java/nio/file/Files.html)或许更合适。
