@@ -11,7 +11,8 @@
     使用 Async-File 工具，使用Java NIO开发，Java应用可以简单的，方便的，异步和无阻塞的读写文件
   </description>
 
-  <url>https://gitee.com/yangyunjiao/async-file</url>
+  <url>https://gitee.com/pinweiwan/async-file</url>
+
   <licenses>
     <license>
       <name>MIT license</name>
@@ -26,10 +27,10 @@
     </developer>
   </developers>
   <scm>
-    <connection>scm:git:git@github.com:kavahub/async-file.git</connection>
-    <developerConnection>scm:git:git@github.com:kavahub/async-file.git</developerConnection>
-    <url>https://github.com/kavahub/async-file.git</url>
-    <tag>kavahub-async-file-1.0.1.RELEASE</tag>
+    <connection>scm:git:git@gitee.com:pinweiwan/async-file.git</connection>
+    <developerConnection>scm:git:git@gitee.com:pinweiwan/async-file.git</developerConnection>
+    <url>https://gitee.com/pinweiwan/async-file.git</url>
+    <tag>HEAD</tag>
   </scm>
 
 
