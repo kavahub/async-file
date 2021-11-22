@@ -8,9 +8,9 @@
   <packaging>jar</packaging>
 
   <description>
-    使用 Async-File 框架，Java应用可以简单的，方便的，异步和无阻塞的读写文件。
-    框架使用Java NIO开发，除slf4j，不依赖其他第三方包
+    使用 Async-File 工具，使用Java NIO开发，Java应用可以简单的，方便的，异步和无阻塞的读写文件
   </description>
+
   <url>https://gitee.com/yangyunjiao/async-file</url>
   <licenses>
     <license>
@@ -29,7 +29,7 @@
     <connection>scm:git:git@github.com:kavahub/async-file.git</connection>
     <developerConnection>scm:git:git@github.com:kavahub/async-file.git</developerConnection>
     <url>https://github.com/kavahub/async-file.git</url>
-    <tag>kavahub-async-file-1.0.0.RELEASE</tag>
+    <tag>HEAD</tag>
   </scm>
 
 

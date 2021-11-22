@@ -99,9 +99,9 @@ public static final int BUFFER_SIZE = 4096 * 4;
                 .blockingSubscribe();
 ```
 
-这种适用广泛，我们经常读取文本文件，统计相关信息，如：单词统计等，只需要编写 `doSomethingData` 代码。编写`doSomethingError` 代码，处理读或者业务处理中的异常，我们建议将异常输出到日志
+这种适用广泛，我们经常读取文本文件，统计相关信息，如：单词统计等，只需要编写 `doSomethingData` 代码。`doSomethingError` 方法，处理读或者业务处理中的异常，我们建议将异常输出到日志
 
-`doSomethingData` 业务中的异常，会导致读文件中断，整个文件操作终止。异常 信息可以在 `doSomethingError` 中处理
+`doSomethingData` 业务中的异常，会导致读文件中断，整个文件操作终止，所有的异常信息可以在 `doSomethingError` 中处理
 
 示例：
 
