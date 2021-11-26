@@ -8,7 +8,7 @@
   <packaging>jar</packaging>
 
   <description>
-    使用 Async-File 工具，使用Java NIO开发，Java应用可以简单的，方便的，异步和无阻塞的读写文件
+    Async-File 异步文件读写工具，使用Java NIO开发，可以简单的，方便的，异步和无阻塞的读写文件
   </description>
 
   <url>https://github.com/kavahub/async-file</url>
